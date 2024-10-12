@@ -7,6 +7,9 @@ import Services.JobService as JobService
 import Services.OperatorService as OperatorService
 from flask_cors import CORS,cross_origin
 
+from Services.ExecutionStream.ExecutionStream import create_job_status_stream
+
+
 app = Flask(__name__)
 CORS(app,resources={r"/*": {"origins": "http://localhost:3000"}})
 # Basic route for the homepage
@@ -64,6 +67,11 @@ def get_last_runs():
 @cross_origin()  # Allows all domains; adjust as needed
 def log_stream():
     return Response(StreamLogs.read_log_file(), mimetype='text/event-stream')
+
+
+@app.route('/job_status/<int:job_id>')
+def stream_job_status(job_id):
+    return Response(create_job_status_stream(job_id)(), content_type='text/event-stream')
 
 if __name__ == '__main__':
     # Run the app on localhost (127.0.0.1) with debug mode on
