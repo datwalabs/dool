@@ -2,6 +2,7 @@ from flask import Flask
 
 # services
 import Services.UserService as UserService
+import Services.EnvironmentService as EnvService
 
 app = Flask(__name__)
 
@@ -19,6 +20,12 @@ def create_user():
 @app.route('/users')
 def get_users():
     return UserService.hello()
+
+# Environment Management
+@app.route('/environment', methods=['POST'])
+def create_environment():
+    EnvService.create_environment(None)
+    return '', 201
 
 
 if __name__ == '__main__':
