@@ -1,0 +1,15 @@
+.listJob-Container{
+    width: 100%;
+    .header{
+        width: 100%;
+        background-color: blue;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        .userDetails{
+            display: flex;
+            gap: 16px;
+        }
+    }
+}
