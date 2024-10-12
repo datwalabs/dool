@@ -15,6 +15,16 @@ class LoginRequest:
     def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
+        
+    def hash_password(self):
+        sha256_hash = hashlib.sha256()
+    
+        # Update the hash object with the bytes of the password
+        sha256_hash.update(self.password.encode('utf-8'))
+        
+        # Return the hexadecimal representation of the digest
+        self.password = sha256_hash.hexdigest()
+
 
 class CreateUserRequest:
     def __init__(self, username: str, email: str, password: str):

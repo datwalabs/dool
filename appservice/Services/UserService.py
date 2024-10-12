@@ -10,3 +10,8 @@ def get_users():
 def create_user(user):
     user.hash_password()
     _userRepo.create_user(user)
+    
+def login_user(user):
+    user.hash_password()
+    userinfo = _userRepo.sign_in_user(user)
+    return userinfo

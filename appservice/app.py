@@ -6,7 +6,7 @@ import Services.EnvironmentService as EnvService
 import Services.JobService as JobService
 import Services.OperatorService as OperatorService
 
-from models import *
+from Models.UserModels import *
 
 app = Flask(__name__)
 
@@ -22,6 +22,14 @@ def create_user():
     user = CreateUserRequest(userrequest["username"], userrequest["email"], userrequest["password"])
     UserService.create_user(user)
     return '', 201
+
+@app.route('/login', methods=['POST'])
+def login_user():
+    userrequest = request.json
+    loginCredentials = LoginRequest(userrequest["username"], userrequest["password"])
+    userinfo = UserService.login_user(loginCredentials)
+    print("User Info", userinfo)
+    return '', 200
 
 @app.route('/users')
 def get_users():
