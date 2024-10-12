@@ -3,11 +3,21 @@ import { useNavigate } from "react-router-dom";
 import listjob from "../Data/ListJob";
 import { Job, User, Operator, Task } from "../Interface/IListjob";
 import Header from "./Header/header";
+
 import "../listjob.scss";
 
 export default function Listjob() {
   const listJob: [Job] = listjob;
   const [Listjob, setListjob] = useState(listJob);
+  const [show , setShow] = useState(false);
+  const [jobObject, setjobObject] = useState([]);
+  const [jobName, setJobName] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [cronExpression, setCronExpression] = useState('');
+
+  // State to store the array of job objects
+  const [jobList, setJobList] = useState<{ name: string; description: string; cron: string }[]>([]);
+
 
   const navigate = useNavigate();
 
@@ -15,12 +25,67 @@ export default function Listjob() {
     navigate("/ListView", { state: Listjob }); // Replace with your target path
   };
 
+  const openModal = () => {
+    setShow(!show);
+  }
+
+  // Function to handle the "Next" button click
+  function handleNext() {
+    const newJob = {
+      name: jobName,
+      description: jobDescription,
+      cron: cronExpression,
+    };
+
+    // Add the new job to the jobList
+    setJobList((prevList) => {
+      const updatedList = [...prevList, newJob]; // Create a new list with the new job
+      navigate("/Integration", { state: updatedList[0] }); // Pass the updated list
+      return updatedList; // Return the updated list to update the state
+    });
+
+    // Reset input fields after adding the job
+    setJobName('');
+    setJobDescription('');
+    setCronExpression('');
+}
+
+
+
   return (
     <div className="listJob-Container">
       <Header />
-      <div className="listjob-header">JOB INFORMATION</div>
+      <div className="listjob-header">JOB INFORMATION</div>     
 
       <div className="listjob-table-container">
+        <div className="createJob">
+          <button onClick={() =>{
+            openModal();
+          }}>Create</button>
+        </div>
+        <div className="modal" style={{ display: show ? 'block' : 'none' }}>
+        <div className="input-container">
+          <input
+            type="text"
+            placeholder="Job Name"
+            value={jobName}
+            onChange={(e) => setJobName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Job Description"
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Cron Expression"
+            value={cronExpression}
+            onChange={(e) => setCronExpression(e.target.value)}
+          />
+        </div>
+        <button onClick={handleNext}>Next</button>
+      </div>
         <div className="row table-head">
           <div className="col-2">Job Name</div>
           <div className="col-3">Status</div>
@@ -55,9 +120,11 @@ export default function Listjob() {
               </div>
               <div className="col-3 action-buttons">
                 <button onClick={()=>{
-                  navigate("/Integration", { state: job }); // Replace with your target path
+                  navigate("/Integration",{ state: job }); // Replace with your target path
                 }}>Run</button>
-                <button>Edit</button>
+                <button onClick={()=>{
+                  navigate("/EditIntegration", { state: job }); // Replace with your target path
+                }}>Edit</button>
                 <button>Delete</button>
               </div>
             </div>

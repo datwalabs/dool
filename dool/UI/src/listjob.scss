@@ -11,6 +11,16 @@
     margin-top: 20px;
     margin-left: 16px;
   }
+  .listjob-table-container{
+    position: relative;
+    .createJob{
+      display: flex;
+      justify-content: end;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+   
+  }
 
   .table-head {
     margin: 0;
@@ -69,10 +79,27 @@
  .jobIntegrationContainer{
   .createCancel{
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
     gap: 20px;
     margin-top: 30px;
     margin-bottom: 20px;
+    margin-left: 16px;
+    margin-right: 16px;
+    .details{
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      background-color: aliceblue;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      font-size: 21px;
+      font-weight:normal;
+    }
+    .buttons{
+      display: flex;
+      gap: 10px;
+    }
   }
   .list-view-container{
     padding: 20px;
@@ -106,3 +133,29 @@
   
   
  }
+ .modal{
+  background-color: aliceblue;
+  height: 40%;
+  width: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  display: none;
+  left: 25%;
+  top: 20%;
+  text-align: center;
+  .input-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    /* height: 100%; */
+    margin-top: 5%;
+    margin-bottom: 20px;
+    input{
+      width: 300px;
+      padding: 8px;
+      border: 1px solid grey;
+    }
+  }
+}

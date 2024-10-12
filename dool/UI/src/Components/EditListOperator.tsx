@@ -5,12 +5,8 @@ import "../listjob.scss";
 import { useLocation } from "react-router-dom";
 import { jobIntegration } from "../Interface/IJobIntegration";
 
-export default function JobIntegration() {
+export default function EditJobIntegration() {
   const [IntegrationData, setIntegrationData] = useState(jobIntegrationData);
-  const [show, setShow] = useState(false);
-  const [jobData, setJobdata] = useState<any>([]);
-  const [taskName, setTaskName] = useState("");
-  const [taskParams, settaskParams] = useState("");
   const [stepList, setSteplist] = useState<jobIntegration[][]>([]); // Array of arrays for grouping steps
   const [showListView, setShowListView] = useState(false); // Track if list-view-container is visible or hidden
   const [currentStepIndex, setCurrentStepIndex] = useState<{
@@ -22,32 +18,22 @@ export default function JobIntegration() {
     stepIndex: null,
     position: "below",
   }); // Keep track of the current step and group
-  const [jobList, setJobList] = useState<{ name: string; params: string }[]>(
-    []
-  );
 
   const location = useLocation();
   const Listjob = location.state; // Access the passed data here
   console.log(Listjob[0]);
 
   // Create object and close the list view
-  function createObject(data: any,updatedList:any) {
+  function createObject(data: jobIntegration) {
     const { groupIndex, stepIndex, position } = currentStepIndex;
 
     setSteplist((prevList) => {
       const newList = [...prevList];
 
-      
-
       if (groupIndex === null) {
         // Initial case: Add the first group and step
-        data['taskName'] = updatedList[0].name;
-        data['taskParams'] = updatedList[0].params;
         return [[data]];
-
       } else {
-        data['taskName'] = updatedList[groupIndex].name;
-        data['taskParams'] = updatedList[groupIndex].params;
         if (position === "below") {
           // Insert below the current step in the same group
           newList.splice(groupIndex + 1, 0, [data]);
@@ -57,66 +43,11 @@ export default function JobIntegration() {
           newList[groupIndex].splice(stepIndex + 1, 0, data); // Insert at the next position in the group
         }
       }
-      console.log(newList)
+      console.log(newList);
       return newList;
     });
 
     setShowListView(false); // Close the list-view-container after adding a step
-  }
-
-  const openModal = () => {
-    setShow(!show);
-  };
-
-  // Function to handle the "Next" button click
-  function handleNext() {
-    const newJob = {
-      name: taskName,
-      params: taskParams,
-    };
-    setShow(!show);
-    // Add the new job to the jobList
-    setJobList((prevList) => {
-      const updatedList = [...prevList, newJob]; // Create a new list with the new job
-      createObject(jobData,updatedList);
-      return updatedList; // Return the updated list to update the state
-    });
-
-    // Reset input fields after adding the job
-    setTaskName("");
-    settaskParams("");
-  }
-
-  // Function to merge jobList and stepList into the desired format
-  function submitData() {
-    const tasks: any = [];
-
-      const { name, params } = jobList[0];
-
-      // Assuming stepList is structured as an array of arrays
-      stepList.forEach((group, groupIndex) => {
-        group.forEach((step, stepIndex) => {
-          // Create the task object
-          const task = {
-            task_name: name,
-            operator: {
-              operator_name: step.operator_name, // Adjust this based on your data structure
-              operator_slug: step.operator_name, // Adjust this based on your data structure
-              operator_id: step.operator_id, // Adjust this based on your data structure
-            },
-            sequence: stepIndex + 1, // Using the job's index as sequence
-            task_params: params,
-          };
-          tasks.push(task);
-        });
-      });
-
-    // Create the final data structure
-    const finalData = {
-      tasks: tasks,
-    };
-
-    console.log(finalData);
   }
 
   // Toggle the visibility of the list-view-container and set the current step position
@@ -134,13 +65,13 @@ export default function JobIntegration() {
       <Header />
       <div className="createCancel">
         <div className="details">
-          <div>{Listjob.name}</div>
-          <div>{Listjob.description}</div>
-          <div>{Listjob.cron}</div>
+        <div>{Listjob.job_id}</div>
+        <div>{Listjob.job_name}</div>
+        <div>{Listjob.cron}</div>
         </div>
         <div className="buttons">
-          <button onClick={() =>submitData()}>Submit</button>
-          <button>Cancel</button>
+        <button>Submit</button>
+        <button>Cancel</button>
         </div>
       </div>
 
@@ -184,14 +115,12 @@ export default function JobIntegration() {
                       justifyContent: "space-between",
                       alignItems: "center",
                       marginBottom: "10px",
-                      width: "100%",
+                      width:"100%"
+
                     }}
                   >
                     {/* The step content */}
-                    <div
-                      className="details-data"
-                      style={{ flexGrow: 1, width: "100%" }}
-                    >
+                    <div className="details-data" style={{ flexGrow: 1, width: "100%" }}>
                       <div className="title">{data.operator_name}</div>
                       <div className="description">{data.description}</div>
                     </div>
@@ -203,7 +132,7 @@ export default function JobIntegration() {
                         cursor: "pointer",
                         color: "blue",
                         marginLeft: "10px",
-                        marginRight: "10px",
+                        marginRight : "10px"
                       }}
                       onClick={() =>
                         toggleListView(groupIndex, stepIndex, "right")
@@ -238,39 +167,13 @@ export default function JobIntegration() {
           {showListView && (
             <div className="list-view-container">
               <div className="header">Add an Action</div>
-              <div
-                className="modal"
-                style={{ display: show ? "block" : "none" }}
-              >
-                <div className="input-container">
-                  <input
-                    type="text"
-                    placeholder="Task Name"
-                    value={taskName}
-                    onChange={(e) => setTaskName(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Job Description"
-                    value={taskParams}
-                    onChange={(e) => settaskParams(e.target.value)}
-                  />
-                </div>
-                <button onClick={handleNext}>Next</button>
-              </div>
               <input type="search" />
               <div className="details">
                 {IntegrationData.map((data: jobIntegration, index) => (
                   <div
                     key={index}
                     className="details-data"
-                    onClick={
-                      () => {
-                        openModal();
-                        setJobdata(data);
-                      }
-                      // createObject(data)
-                    }
+                    onClick={() => createObject(data)}
                   >
                     <div className="title">{data.operator_name}</div>
                     <div className="description">{data.description}</div>
