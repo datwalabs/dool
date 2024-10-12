@@ -1,5 +1,5 @@
 import os
-from .base_operator import BaseOperator
+from ..base_operator import BaseOperator
 import json
 
 class PythonOperator(BaseOperator):
