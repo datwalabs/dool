@@ -1,0 +1,17 @@
+path : /environment/
+
+rqeuest
+{
+    "environment_name" : "dev env"
+}
+
+response 
+{
+    "environment_id":12,
+    "environment_name":"dev env",
+    "created_by": {
+        "user_id": 34,
+        "username": "paresh.sahoo"
+    },
+    "created_at" : "2024-09-21T12:23:34"
+}

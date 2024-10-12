@@ -1,0 +1,571 @@
+openapi: 3.0.0
+info:
+  title: User and Environment API
+  version: 1.0.0
+  description: API for managing users and environments
+
+tags:
+  - name: User Management
+    description: APIs related to user management
+  - name: Environment Management
+    description: APIs related to environment management
+  - name: Job Management
+    description: APIs related to job management
+  - name: Operators
+    description: APIs related to Operators
+  - name: Runs
+    description: APIs related to Job runs and history
+  
+
+paths:
+  # User-related paths
+  /users:
+    get:
+      tags:
+        - User Management
+      summary: Retrieve a list of users
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+    post:
+      tags:
+        - User Management
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  # Environment-related paths
+  /environment:
+    post:
+      tags:
+        - Environment Management
+      summary: Create a new environment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvironmentRequest'
+      responses:
+        '201':
+          description: Environment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+  /jobs:
+    post:
+      tags:
+        - Job Management
+      summary: Create a new job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobRequest'
+      responses:
+        '201':
+          description: Job created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+                
+  
+  
+  /jobs/tasks:
+    post:
+      tags:
+        - Job Management
+      summary: Update tasks for a specific job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobTasksRequest'
+      responses:
+        '200':
+          description: Job tasks updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+  
+  /jobs/runs:
+    get:
+      tags:
+        - Runs
+      summary: View jobs' run history
+      parameters:
+          - in: query
+            name: job_id
+            required: true
+            schema:
+              type: string
+            description: ID of the job for which is history is required
+      responses:
+        '200':
+          description: List of runs for a particular job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunHistoryResponse'
+                
+  /jobs/running:
+    get:
+      tags:
+        - Runs
+      summary: View a particular job's running status
+      parameters:
+          - in: query
+            name: run_id
+            required: true
+            schema:
+              type: string
+            description: ID of the job for which logs are required
+      responses:
+        '200':
+          description: List of runs for a particular job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunningJob'
+  
+  /operator:
+    get:
+      tags:
+        - Operators
+      summary: Manage operators
+      responses:
+        '200':
+          description: Job tasks updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operators'
+
+components:
+  schemas:
+    # User-related components
+    UserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "paresh.sahoo"
+        email:
+          type: string
+          format: email
+          example: "paresh@datwalabs.com"
+        password:
+          type: string
+          format: password
+          example: "********"
+      required:
+        - username
+        - email
+        - password
+
+    UserResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 12
+        username:
+          type: string
+          example: "paresh.sahoo"
+        email:
+          type: string
+          format: email
+          example: "paresh@datwalabs.com"
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+      required:
+        - user_id
+        - username
+        - email
+
+    Role:
+      type: object
+      properties:
+        role_id:
+          type: integer
+          example: 12
+        role_name:
+          type: string
+          example: "LDM_PROD"
+        role_type:
+          type: string
+          example: "environment"
+        role_level:
+          type: string
+          example: "partial"
+        environments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Environment'
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+      required:
+        - role_id
+        - role_name
+        - role_type
+        - role_level
+
+    Job:
+      type: object
+      properties:
+        job_id:
+          type: integer
+          example: 1
+        job_name:
+          type: string
+          example: "Load Data Marts"
+      required:
+        - job_id
+        - job_name
+    
+    # Environment-related components
+    Environment:
+      type: object
+      properties:
+        environment_id:
+          type: integer
+          example: 1
+        environment_name:
+          type: string
+          example: "prod_env"
+      required:
+        - environment_id
+        - environment_name
+    
+    SimpleUser:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 12
+        user_name:
+          type: string
+          example: "paresh.sahoo"
+
+    EnvironmentRequest:
+      type: object
+      properties:
+        environment_name:
+          type: string
+          example: "dev env"
+        user:
+          type: string
+          example: "IQWSTG"
+        password:
+          type: string
+          example: "*******"
+        tnsname:
+          type: string
+          example: "ADWDEV_HIGH"
+      required:
+        - environment_name
+
+    EnvironmentResponse:
+      type: object
+      properties:
+        environment_id:
+          type: integer
+          example: 12
+        environment_name:
+          type: string
+          example: "dev env"
+        created_by:
+          $ref: '#/components/schemas/SimpleUser'
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-09-21T12:23:34"
+      required:
+        - environment_id
+        - environment_name
+        - created_by
+        - created_at
+    
+    JobRequest:
+      type: object
+      properties:
+        job_name:
+          type: string
+          example: "UDM"
+        cron:
+          type: string
+          example: "8 * * * *"
+        is_active:
+          type: boolean
+          example: true
+        environment:
+          type: integer
+          example: 1
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      required:
+        - job_name
+        - cron
+        - is_active
+        - environment
+        - tasks
+    
+    JobTasksRequest:
+      type: object
+      properties:
+        job_id:
+          type: integer
+          example: 3
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      required:
+        - job_id
+        - tasks
+
+    JobResponse:
+      type: object
+      properties:
+        job_id:
+          type: integer
+          example: 12
+        job_name:
+          type: string
+          example: "UDM"
+        cron:
+          type: string
+          example: "8 * * * *"
+        is_active:
+          type: boolean
+          example: true
+        environment:
+          type: integer
+          example: 1
+        created_by:
+          $ref: '#/components/schemas/SimpleUser'
+        next_run:
+          type: string
+          format: date-time
+          example: "2024-09-21T12:23:34"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-09-21T12:23:34"
+        last_run:
+          type: string
+          format: date-time
+          example: "2024-09-21T12:23:34"
+        success_runs:
+          type: integer
+          example: 12
+        fail_runs:
+          type: integer
+          example: 12
+        running_now:
+          type: boolean
+          example: true
+        failed_last_10:
+          type: integer
+          example: 3
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+      required:
+        - job_id
+        - job_name
+        - cron
+        - is_active
+        - environment
+        - created_by
+        - next_run
+        - created_at
+        - last_run
+        - tasks
+      example: # Added example for the JobResponse
+        job_id: 12
+        job_name: "UDM"
+        cron: "8 * * * *"
+        is_active: true
+        environment: 1
+        created_by: 
+          user_id: 12
+          username: "paresh.sahoo"
+        next_run: "2024-09-21T12:23:34"
+        created_at: "2024-09-21T12:23:34"
+        last_run: "2024-09-21T12:23:34"
+        success_runs: 12
+        fail_runs: 4
+        failed_last_10: 2
+        running_now: true
+        tasks: # Example of multiple task objects
+          - task_name: "calculate_wh"
+            operator:
+              operator_name: "python3"
+              operator_slug: "python3"
+              operator_id: 3
+            sequence: 2
+            task_params: "main.py --model CALCULATW_WH"
+          - task_name: "calculate_wh"
+            operator:
+              operator_name: "python3"
+              operator_slug: "python3"
+              operator_id: 3
+            sequence: 1
+            task_params: "main.py --model DECALC"
+
+    Task:
+      type: object
+      properties:
+        task_name:
+          type: string
+          example: "calculate_wh"
+        operator:
+          type: object
+          properties:
+            operator_name:
+              type: string
+              example: "python3"
+            oeprator_slug:
+              type: string
+              example: "python3"
+            operator_id:
+              type: integer
+              example: 3
+        sequence:
+          type: integer
+          example: 2
+        task_params:
+          type: string
+          example: "main.py --model CALCULATW_WH"
+      required:
+        - task_name
+        - operator
+        - sequence
+        - task_params
+        
+    Operator:
+      type: object
+      properties:
+        operator_name:
+          type: string
+          example: "python3"
+        operator_id:
+          type: number
+          example: 3
+        description:
+          type: string
+          example: "this operator to use for python"
+    
+    Operators:
+      type: array
+      items:
+            $ref: '#/components/schemas/Operator'
+            
+    
+    RunHistory:
+      type: object
+      properties:
+        run_id:
+          type: integer
+          example: 12
+        status:
+          type: string
+          example: "success"
+        started_at:
+          type: string
+          format: date-time
+          example: "2024-09-21T12:23:34"
+        finished_at:
+          type: string
+          format: date-time
+          example: "2024-09-21T12:23:34"
+        logfile:
+          type: string
+          example: "2024_2-12-sads.log"
+        logfile_id:
+          type: number
+          example: 556
+    
+    RunHistoryResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/RunHistory'
+        
+    StepStatus:
+      type: object
+      properties:
+        step_id:
+          type: integer
+          example: 12
+        step_name:
+          type: string
+          example: "CALC_WH"
+        step_status:
+          type: string
+          example: "running"
+        sequence:
+          type: integer
+          example: 1
+        time_elapsed:
+          type: string
+          example: "00:00:03"
+          
+    
+    RunningJob:
+      type: object
+      properties:
+        job_id:
+          type: integer
+          example: 12
+        run_id:
+          type: integer
+          example: 12
+        job_name:
+          type: string
+          example: "Load to Mart"
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/StepStatus'
+      
+    
+    
+    
+      
+            
+    
+    
+        
+      
+        
+    

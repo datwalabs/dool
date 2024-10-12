@@ -1,0 +1,46 @@
+{
+    "username": "paresh.sahoo",
+    "email": "paresh@datwalabs.com",
+    "password": "********"
+}
+
+{
+    "user_id": 12,
+    "username": "paresh.sahoo",
+    "email": "paresh@datwalabs.com",
+    "roles" : [
+        {
+            "role_id": 12,
+            "role_name": "LDM_PROD",
+            "role_type": "environment",
+            "role_level": "partial",
+            "environments" : [
+                {
+                    "environment_id":1,
+                    "environment_name": "prod_env"
+                }
+            ],
+            "jobs" : [
+                {
+                    "job_id":1,
+                    "job_name": "Load Data Marts",
+                }
+            ]
+        },
+        {
+            "role_id": 14,
+            "role_name": "job_23",
+            "role_type": "job",
+            "role_level": "FULL",
+            "jobs" : [
+                
+            ],
+            "environments" : [
+               {
+                    "environment_id":1,
+                    "environment_name": "dev_env"
+               }
+            ]
+        }
+    ]
+}
