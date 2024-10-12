@@ -1,15 +1,17 @@
-from flask import Flask, request
+from flask import Flask, Response, request
+import Services.LogStreamService as StreamLogs
 
 # services
 import Services.UserService as UserService
 import Services.EnvironmentService as EnvService
 import Services.JobService as JobService
 import Services.OperatorService as OperatorService
+from flask_cors import CORS,cross_origin
 
 from Models.UserModels import *
 
 app = Flask(__name__)
-
+CORS(app,resources={r"/*": {"origins": "http://localhost:3000"}})
 # Basic route for the homepage
 @app.route('/')
 def home():
@@ -149,6 +151,13 @@ def get_job_runnig():
 def get_last_runs():
     return JobService.get_last_runs()
 
+
+@app.route('/log-stream')
+@cross_origin()  # Allows all domains; adjust as needed
+def log_stream():
+    return Response(StreamLogs.read_log_file(), mimetype='text/event-stream')
+
 if __name__ == '__main__':
     # Run the app on localhost (127.0.0.1) with debug mode on
-    app.run(debug=True, host='192.168.29.167')
+    # app.run(debug=True, host='192.168.29.167')
+    app.run(debug=True, threaded=True)
