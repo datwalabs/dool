@@ -1,20 +1,17 @@
-import { useState } from 'react'
-import reactLogo from '../assets/react.svg'
-import viteLogo from '/electron-vite.animate.svg'
-import '../App.css'
-import Listjob from './Listjob'
-
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Listjob from './Listjob'; // Adjust the path as necessary
+import Listjobview from './Listjobview'; // The component you want to navigate to
+import "../App.css"
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <Listjob/>
-        </div>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Listjob/>} />
+        <Route path="/ListView" element={<Listjobview />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

@@ -2,23 +2,7 @@
   width: 100%;
   padding-left: 20px;
   padding-right: 20px;
-  .header {
-    width: 100%;
-    background-color: blue;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    .userDetails {
-      display: flex;
-      gap: 16px;
-      display: flex;
-      align-items: center;
-    }
-    img {
-      height: 50px;
-    }
-  }
+
   .listjob-header {
     font-size: 32px;
     font-style: normal;
@@ -36,7 +20,9 @@
     background-color: burlywood;
     padding: 16px;
   }
-  .listjob-table-body {
+ 
+}
+.listjob-table-body {
     background-color: azure;
     padding: 16px;
     margin-top: 20px;
@@ -63,4 +49,19 @@
       gap: 10px;
     }
   }
-}
+
+ .runJob-container{
+    .runjob-table-headers{
+        background-color: antiquewhite;
+        padding: 10px;
+        margin-top: 32px !important;
+    }
+    .runjob-table-body{
+        .row{
+            padding: 10px;
+            background-color: aliceblue;
+            margin-bottom: 5px;
+            margin-top: 5px;
+        }
+    }
+ } 

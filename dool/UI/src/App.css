@@ -5,3 +5,20 @@ body{
   height: 100%;
   width: 100%;
 }
+.header {
+  width: 100%;
+  background-color: blue;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  .userDetails {
+    display: flex;
+    gap: 16px;
+    display: flex;
+    align-items: center;
+  }
+  img {
+    height: 50px;
+  }
+}
