@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 from croniter import croniter
 from wrapper import JobsWrapper
+from celery_tasks import execute_job
 
 class CronScheduler:
     def __init__(self, jobs_wrapper):
@@ -14,18 +15,18 @@ class CronScheduler:
         next_run = cron.get_next(datetime)
         return current_time >= next_run
 
-    def execute_job(self, expression):
-        print(f"Executing job for expression: {expression} at {datetime.now()}")
-        # Replace this with your heavy data engineering job
-        time.sleep(5)  # Simulating a long-running job
-        print(f"Job completed for expression: {expression} at {datetime.now()}")
+    def execute_job(self, job):
+        print(f"Submitting job for expression: {job.cron_expression} at {datetime.now()}")
+        result = execute_job(job.id)
+        print(f"Job submitted with Celery task id: {result.id}")
+        job.last_run_time = datetime.now()
 
     def run(self):
         while True:
             current_time = datetime.now()
             for job in self.jobs_wrapper.get_jobs():
                 if self.should_run(job, current_time):
-                    self.execute_job(job.cron_expression)
+                    self.execute_job(job)
             time.sleep(60)  # Check every minute
 
 if __name__ == "__main__":
