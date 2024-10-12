@@ -1,10 +1,12 @@
-from flask import Flask
+from flask import Flask, request
 
 # services
 import Services.UserService as UserService
 import Services.EnvironmentService as EnvService
 import Services.JobService as JobService
 import Services.OperatorService as OperatorService
+
+from models import *
 
 app = Flask(__name__)
 
@@ -16,7 +18,9 @@ def home():
 # User Management
 @app.route('/users', methods=['POST'])
 def create_user():
-    UserService.create_user(None)
+    userrequest = request.json
+    user = CreateUserRequest(userrequest["username"], userrequest["email"], userrequest["password"])
+    UserService.create_user(user)
     return '', 201
 
 @app.route('/users')
@@ -39,6 +43,85 @@ def create_job():
 def update_task():
     JobService.update_task(None)
     return '', 201
+
+@app.route('/job/<int:id>')
+def get_job(id):
+    data = {
+    "job_id": 12,
+    "job_name": "UDM",
+    "cron": "8 * * * *",
+    "is_active": True,
+    "environment": 1,
+    "created_by": {
+        "user_id": 12,
+        "username": "paresh.sahoo"
+    },
+    "next_run": "2024-09-21T12:23:34",
+    "created_at": "2024-09-21T12:23:34",
+    "last_run": "2024-09-21T12:23:34",
+    "success_runs": 12,
+    "fail_runs": 4,
+    "failed_last_10": 2,
+    "running_now": True,
+    "tasks": [
+        {
+        "task_id": "1",
+        "task_name": "calculate_wh",
+        "operator": {
+            "operator_name": "python3",
+            "operator_slug": "python3",
+            "operator_id": 3
+        },
+        "sequence": 1,
+        "task_params": "main.py --model CALCULATW_WH"
+        },
+        {
+        "task_id": "2",
+        "task_name": "calculate_wh",
+        "operator": {
+            "operator_name": "python3",
+            "operator_slug": "python3",
+            "operator_id": 3
+        },
+        "sequence": 2,
+        "task_params": "main.py --model DECALC"
+        },
+        {
+        "task_id": "3",
+        "task_name": "calculate_wh",
+        "operator": {
+            "operator_name": "python3",
+            "operator_slug": "python3",
+            "operator_id": 3
+        },
+        "sequence": 2,
+        "task_params": "main.py --model DECALC"
+        },
+        {
+        "task_id": "4",
+        "task_name": "calculate_wh",
+        "operator": {
+            "operator_name": "python3",
+            "operator_slug": "python3",
+            "operator_id": 3
+        },
+        "sequence": 3,
+        "task_params": "main.py --model DECALC"
+        },
+        {
+        "task_id": "5",
+        "task_name": "calculate_wh",
+        "operator": {
+            "operator_name": "python3",
+            "operator_slug": "python3",
+            "operator_id": 3
+        },
+        "sequence": 4,
+        "task_params": "main.py --model DECALC"
+        }
+    ]
+    }
+    return data, 200
 
 # Operators
 @app.route('/operators')
