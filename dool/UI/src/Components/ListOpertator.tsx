@@ -33,21 +33,16 @@ export default function JobIntegration() {
   // Create object and close the list view
   function createObject(data: any,updatedList:any) {
     const { groupIndex, stepIndex, position } = currentStepIndex;
-
     setSteplist((prevList) => {
       const newList = [...prevList];
-
-      
+       
+      data['taskName'] = updatedList.name;
+      data['taskParams'] = updatedList.params;
 
       if (groupIndex === null) {
         // Initial case: Add the first group and step
-        data['taskName'] = updatedList[0].name;
-        data['taskParams'] = updatedList[0].params;
         return [[data]];
-
       } else {
-        data['taskName'] = updatedList[groupIndex].name;
-        data['taskParams'] = updatedList[groupIndex].params;
         if (position === "below") {
           // Insert below the current step in the same group
           newList.splice(groupIndex + 1, 0, [data]);
@@ -74,13 +69,15 @@ export default function JobIntegration() {
       name: taskName,
       params: taskParams,
     };
+    console.log("jobList",newJob);
     setShow(!show);
     // Add the new job to the jobList
     setJobList((prevList) => {
       const updatedList = [...prevList, newJob]; // Create a new list with the new job
-      createObject(jobData,updatedList);
       return updatedList; // Return the updated list to update the state
     });
+    createObject(jobData,newJob);
+   
 
     // Reset input fields after adding the job
     setTaskName("");
@@ -98,14 +95,14 @@ export default function JobIntegration() {
         group.forEach((step, stepIndex) => {
           // Create the task object
           const task = {
-            task_name: name,
+            task_name: step.taskName,
             operator: {
               operator_name: step.operator_name, // Adjust this based on your data structure
               operator_slug: step.operator_name, // Adjust this based on your data structure
               operator_id: step.operator_id, // Adjust this based on your data structure
             },
-            sequence: stepIndex + 1, // Using the job's index as sequence
-            task_params: params,
+            sequence: groupIndex + 1, // Using the job's index as sequence
+            task_params: step.taskParams,
           };
           tasks.push(task);
         });
@@ -116,7 +113,16 @@ export default function JobIntegration() {
       tasks: tasks,
     };
 
-    console.log(finalData);
+    const createJobRequestBody = {
+      "job_name": Listjob.name ,
+      "cron": Listjob.cron,
+      "is_active": true,
+      "environment": 1,
+      "tasks": tasks
+    }
+
+
+    console.log(createJobRequestBody);
   }
 
   // Toggle the visibility of the list-view-container and set the current step position
