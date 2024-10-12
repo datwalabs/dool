@@ -54,7 +54,9 @@ export default function Listjob() {
                 <div className="nextRuns">{job.next_run}</div>
               </div>
               <div className="col-3 action-buttons">
-                <button>Run</button>
+                <button onClick={()=>{
+                  navigate("/Integration", { state: job }); // Replace with your target path
+                }}>Run</button>
                 <button>Edit</button>
                 <button>Delete</button>
               </div>

@@ -65,3 +65,44 @@
         }
     }
  } 
+
+ .jobIntegrationContainer{
+  .createCancel{
+    display: flex;
+    justify-content: end;
+    gap: 20px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+  .list-view-container{
+    padding: 20px;
+    border: 2px solid gray;
+    .header{
+      background-color: unset;
+      color: black;
+      padding: 0;
+      font-size: 24px;
+    }
+
+  }
+  .details-data{
+    padding: 10px;
+    padding-left: 20px;
+    background-color: white; /* Background color */
+    margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+    border-radius: 8px; /* Optional: for rounded corners */
+  }
+  .add-button, .add-step-button {
+    cursor: pointer;
+    color: blue; /* Change color to fit your design */
+    font-size: 20px;
+    margin-left: 10px;
+  }
+  
+  .add-step-button {
+    margin-top: 20px; /* Add some space above the bottom button */
+  }
+  
+  
+ }
