@@ -1,66 +1,64 @@
 from celery import Celery, chain, group
 from celery.utils.log import get_task_logger
-import importlib
+from collections import deque
+from operators.PythonOperator.PythonOperator import PythonOperator
+from wrapper import Task  # Ensure Task is imported
 
-# Initialize Celery app
-app = Celery('jobs', broker='pyamqp://guest@localhost//')
+app = Celery('jobs', 
+             broker='redis://localhost:6379/0',
+             backend='redis://localhost:6379/1')
 
-# Configure Celery to use RabbitMQ
-app.conf.update(
-    task_serializer='json',
-    accept_content=['json'],
-    result_serializer='json',
-    timezone='UTC',
-    enable_utc=True,
-)
+# Configure Celery
+# app.conf.update(
+#     task_serializer='json',
+#     accept_content=['json'],
+#     result_serializer='json',
+#     timezone='UTC',
+#     enable_utc=True,
+#     worker_pool='prefork',
+#     worker_concurrency=8,
+#     worker_prefetch_multiplier=1,
+#     worker_max_tasks_per_child=200,
+#     worker_autoscaler='celery.worker.autoscale:Autoscaler',
+#     worker_autoscale_min=2,
+#     worker_autoscale_max=8,
+# )
 
 logger = get_task_logger(__name__)
 
-@app.task
-def execute_step(job_id, step_config):
-    logger.info(f"Executing step for job {job_id}: {step_config['name']}")
-    
-    # Dynamically import the operator class
-    module_name, class_name = step_config['operator'].rsplit('.', 1)
-    module = importlib.import_module(module_name)
-    operator_class = getattr(module, class_name)
-    
-    # Create an instance of the operator
-    operator = operator_class(**step_config.get('params', {}))
-    
-    # Execute the operator
-    result = operator.execute()
-    
-    logger.info(f"Step {step_config['name']} completed for job {job_id}")
-    return result
+@app.task(name='schedular.celery_tasks.execute_step',bind=True)
+def execute_step(self,step,**kwargs):
+    print('Executing Step')
+    if step["operator"]['operator_slug'] == 'python3':
+        return PythonOperator(filepath=fr"{step['task_params']}").execute()
+    return None
 
-def create_workflow(job_id, steps):
+def create_workflow(job):
     workflow = []
-    for step in steps:
-        if isinstance(step, list):
-            # If step is a list, create a group for parallel execution
-            group_tasks = group(execute_step.s(job_id, s) for s in step)
-            workflow.append(group_tasks)
-        else:
-            workflow.append(execute_step.s(job_id, step))
-    
+    tasks = job.tasks
+    group_tasks = []
+    while len(tasks) > 0:
+        temp_list = []
+        while True:
+            t = tasks.pop(0)
+            temp_list.append(t.to_dict())  # Convert Task to dict
+            if len(tasks) > 0:
+                if tasks[0].sequence != t.sequence:
+                    group_tasks = group(execute_step.si(s) for s in temp_list)
+                    workflow.append(group_tasks)  # Append the last group_task
+                    temp_list = []
+                    break
+            else:
+                group_tasks = group(execute_step.si(s) for s in temp_list)
+                workflow.append(group_tasks)  # Append the last group_task
+                break
+    print(len(workflow))
+    print(len(group_tasks))
+    print('Workflow Created')
     return chain(*workflow)
 
-def execute_job(job_id, steps):
-    workflow = create_workflow(job_id, steps)
+def execute_job(job):
+    workflow = create_workflow(job)
+    print('Applying Async')
     result = workflow.apply_async()
     return result
-
-if __name__ == '__main__':
-    # For testing purposes
-    test_steps = [
-        {'name': 'Step 1', 'operator': 'operators.PythonOperator.PythonOperator', 'params': {'python_callable': lambda: print("Step 1")}},
-        [
-            {'name': 'Step 2a', 'operator': 'operators.PythonOperator.PythonOperator', 'params': {'python_callable': lambda: print("Step 2a")}},
-            {'name': 'Step 2b', 'operator': 'operators.PythonOperator.PythonOperator', 'params': {'python_callable': lambda: print("Step 2b")}}
-        ],
-        {'name': 'Step 3', 'operator': 'operators.PythonOperator.PythonOperator', 'params': {'python_callable': lambda: print("Step 3")}},
-        {'name': 'Step 4', 'operator': 'operators.PythonOperator.PythonOperator', 'params': {'python_callable': lambda: print("Step 4")}}
-    ]
-    job_result = execute_job('test_job_1', test_steps)
-    print(f"Job submitted with id: {job_result.id}")
