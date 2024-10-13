@@ -188,3 +188,114 @@ def get_job_by_id(job_id: int):
     db.close()
 
     return job.to_dict()
+
+def get_running_jobs_by_job_id(job_id: int):
+    # Define your database connection details
+    db = Database()
+    db.connect()
+    cursor = db.connection.cursor()
+
+    # Execute the query to retrieve running jobs for a specific job ID
+    cursor.execute("""
+        SELECT 
+            j.job_id, j.job_name, j.cron_expression, j.is_active, j.environment,
+            jh.run_id, jh.status, jh.started_at, jh.finished_at, jh.logfile, jh.logfile_id
+        FROM jobs j
+        JOIN job_run_history jh ON j.job_id = jh.job_id
+        WHERE jh.status = 'running' AND j.job_id = %s
+    """, (job_id,))
+    
+    # Fetch all rows
+    rows = cursor.fetchall()
+    
+    running_jobs = []
+    for row in rows:
+        job_id, job_name, cron_expression, is_active, environment, run_id, status, started_at, finished_at, logfile, logfile_id = row
+        
+        # Create Job instance
+        job = Job(
+            job_id=job_id,
+            job_name=job_name,
+            cron_expression=cron_expression,
+            is_active=is_active,
+            environment=environment,
+            tasks=[],  # Initialize with an empty list for tasks
+        )
+        
+        # Create JobRunHistory instance
+        job_run_history = JobRunHistory(
+            run_id=run_id,
+            status=status,
+            started_at=started_at,
+            finished_at=finished_at,
+            logfile=logfile,
+            logfile_id=logfile_id
+        )
+
+        # Append the job and its run history
+        running_jobs.append((job, job_run_history))
+
+    cursor.close()
+    db.close()
+
+    return running_jobs
+
+def get_all_job_run_histories_by_job_id(job_id: int):
+    # Define your database connection details
+    db = Database()
+    db.connect()
+    cursor = db.connection.cursor()
+
+    # Execute the query to retrieve all job run histories for a specific job ID
+    cursor.execute("""
+        SELECT 
+            j.job_id, j.job_name, j.cron_expression, j.is_active, j.environment,
+            jh.run_id, jh.status, jh.started_at, jh.finished_at, jh.logfile, jh.logfile_id
+        FROM jobs j
+        LEFT JOIN job_run_history jh ON j.job_id = jh.job_id
+        WHERE j.job_id = %s
+    """, (job_id,))
+    
+    # Fetch the results
+    rows = cursor.fetchall()
+    
+    if not rows:
+        cursor.close()
+        db.close()
+        return None  # No job found with the given ID
+
+    # Initialize the job instance and a list for run history
+    job = None
+    job_run_histories = []
+
+    for row in rows:
+        if job is None:
+            job_id, job_name, cron_expression, is_active, environment, \
+            run_id, status, started_at, finished_at, logfile, logfile_id = row
+            
+            # Create Job instance
+            job = Job(
+                job_id=job_id,
+                job_name=job_name,
+                cron_expression=cron_expression,
+                is_active=is_active,
+                environment=environment,
+                tasks=[],  # Initialize with an empty list for tasks
+            )
+        
+        # Create JobRunHistory instance if run_id is not None
+        if run_id is not None:
+            job_run_history = JobRunHistory(
+                run_id=run_id,
+                status=status,
+                started_at=started_at,
+                finished_at=finished_at,
+                logfile=logfile,
+                logfile_id=logfile_id
+            )
+            job_run_histories.append(job_run_history)
+
+    cursor.close()
+    db.close()
+
+    return job, job_run_histories

@@ -1,2 +1,4 @@
+from Repositories import OperatorRepository as _repo
+
 def get_operators():
-    return "Operators"
+    return _repo.get_all_operators()
