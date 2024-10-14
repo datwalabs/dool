@@ -52,7 +52,7 @@ export default function JobIntegration() {
           newList[groupIndex].splice(stepIndex + 1, 0, data); // Insert at the next position in the group
         }
       }
-      console.log(newList)
+      console.log(stepList)
       return newList;
     });
 
@@ -87,20 +87,13 @@ export default function JobIntegration() {
   // Function to merge jobList and stepList into the desired format
   function submitData() {
     const tasks: any = [];
-
-      const { name, params } = jobList[0];
-
       // Assuming stepList is structured as an array of arrays
       stepList.forEach((group, groupIndex) => {
         group.forEach((step, stepIndex) => {
           // Create the task object
           const task = {
             task_name: step.taskName,
-            operator: {
-              operator_name: step.operator_name, // Adjust this based on your data structure
-              operator_slug: step.operator_name, // Adjust this based on your data structure
-              operator_id: step.operator_id, // Adjust this based on your data structure
-            },
+            operator_id:  step.operator_id, // Adjust this based on your data structure
             sequence: groupIndex + 1, // Using the job's index as sequence
             task_params: step.taskParams,
           };
